@@ -1,0 +1,28 @@
+{
+    "name": "octosqueeze/octosqueeze-silverstripe",
+    "description": "OctoSqueeze Silverstripe module",
+    "keywords": ["octosqueeze", "silverstripe", "api", "client", "php"],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://octosqueeze.com/",
+    "authors": [
+        {
+            "name": "OctoSqueeze Team",
+            "email": "contact@octosqueeze.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "silverstripe/framework": "^5.0",
+        "silverstripe/admin": "^2.0",
+        "octosqueeze/php-client": "^1.0",
+        "foroco/php-browser-detection": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "OctoSqueeze\\Silverstripe\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -1,0 +1,61 @@
+---
+Name: octosqueeze-image
+After:
+  - "#assetsflysystem"
+  - "#assetscore"
+  - "#silverstripes3-flysystem"
+  - "#silverstripes3-assetscore"
+---
+
+SilverStripe\Assets\File:
+  allowed_extensions:
+    - webp
+    - avif
+  app_categories:
+    image/supported:
+      - avif
+
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\Assets\Image_Backend:
+    properties:
+      Quality: 100
+  SilverStripe\Assets\Storage\AssetStore:
+    class: OctoSqueeze\Silverstripe\Assets\Flysystem\OctosystemAssetStore
+
+---
+Name: octosqueeze-image-ext
+After:
+  - 'assetsimage'
+---
+
+SilverStripe\Assets\Image:
+  extensions:
+    - OctoSqueeze\Silverstripe\Extensions\ImageExtension
+
+SilverStripe\Assets\File:
+  extensions:
+    - OctoSqueeze\Silverstripe\Extensions\FileExtension
+
+SilverStripe\Assets\Storage\DBFile:
+  extensions:
+    - OctoSqueeze\Silverstripe\Extensions\DBFileExtension
+
+---
+Name: octosqueeze-image-routes
+After:
+  - '#rootroutes'
+  - '#coreroutes'
+---
+
+SilverStripe\Control\Director:
+  rules:
+    'octo-api': OctoSqueeze\Silverstripe\Controllers\OctoController
+
+---
+Name: octosqueeze-image-icon
+Only:
+  moduleexists: 'goldfinch/enchantment'
+---
+
+OctoSqueeze\Silverstripe\Admin\OctoSqueezeAdmin:
+  menu_icon_class: 'bi-stars'

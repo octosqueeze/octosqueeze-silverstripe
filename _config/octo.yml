@@ -1,0 +1,32 @@
+---
+Name: octosqueeze-config
+---
+
+OctoSqueeze\Silverstripe\Octo:
+  autoreplace_url: true # convert all image links to best available format (if exist `avif` or if exist `webp` else `jpg`)
+  autoreplace_url_in_admin: false # convert all image links in admin as well
+
+  # not yet implemented
+  oc_quality: size # 'size' best size | 'quality' best quality
+  oc_dev_environment: false # enable/disable OC in DEV
+  required_formats:
+    - avif
+    - webp
+  compress_original_variant: true # compress and replace with an optimized image the original variant image. (eg: image__FitMaxWzYwLDYwXQ.jpg could be replaced with a compressed .jpg version)
+  compress_original: true # compress original file. Please, note that the original uploaded file will never be replaced with an optimized image (like `compress_original_variant` for variant original files). This option covers only additional file compressions. (eg: .avif, .webp)
+  variant_ignore_rules: # variants that should be ignored and never send for compression
+    folder:
+      - "Uploads/*"
+    format:
+      - png
+    size:
+      - more:100
+    width_height:
+      - 100,100
+      - 120,100
+    width:
+      - less:150
+      - 160
+    height:
+      - 130
+      - less:100
