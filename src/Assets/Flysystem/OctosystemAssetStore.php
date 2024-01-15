@@ -79,6 +79,7 @@ class OctosystemAssetStore extends FlysystemAssetStore
         return $return;
     }
 
+    // ! NOT in used currently
     private function sendToCompress($conversion, $file)
     {
         if ($conversion->Image()->isPublished() && $conversion->Stage === 0)
@@ -97,7 +98,7 @@ class OctosystemAssetStore extends FlysystemAssetStore
             //   'options' => ['formats' => 'webp,avif'],
             // ]));
 
-            $uri = ss_env('OCTO_IMAGE_ENDPOINT') . '/api/compress';
+            $uri = ss_env('OCTOSQUEEZE_ENDPOINT') . '/api/compress';
 
             $conversion->Stage = 1;
             $conversion->write();
@@ -107,7 +108,7 @@ class OctosystemAssetStore extends FlysystemAssetStore
             $response = $client->request('POST', $uri, [
                 'timeout' => 1,
                 'headers' => [
-                    'Authorization' => 'Bearer ' . ss_env('OCTO_IMAGE_TOKEN'),
+                    'Authorization' => 'Bearer ' . ss_env('OCTOSQUEEZE_API_KEY'),
                     'Accept' => 'application/json',
                 ],
                 'form_params' => [

@@ -282,7 +282,7 @@ class ImageExtension extends Extension
               //             $conversion->write();
               //         }
 
-              //         $uri = ss_env('OCTO_IMAGE_ENDPOINT') . '/api/compress-all';
+              //         $uri = ss_env('OCTOSQUEEZE_ENDPOINT') . '/api/compress-all';
 
               //         try {
               //         $response = $client->request('POST', $uri, [

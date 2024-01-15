@@ -5,6 +5,7 @@ namespace OctoSqueeze\Silverstripe\Tasks;
 use GuzzleHttp\Client;
 use SilverStripe\Assets\Image;
 use SilverStripe\Dev\BuildTask;
+use OctoSqueeze\Client\OctoSqueeze;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Assets\Storage\AssetStore;
 use Symfony\Component\Filesystem\Filesystem;
@@ -58,7 +59,7 @@ class OSSendConversionsTask extends BuildTask
         {
             if ($conversion->Image()->exists() && $conversion->Image()->isPublished())
             {
-                $sentConversions[] = $conversion;
+                $sentConversions[$conversion->ID] = $conversion;
 
                 if (!$conversion->Hash)
                 {
@@ -72,14 +73,13 @@ class OSSendConversionsTask extends BuildTask
                 }
 
                 $links[] = [
-                  'id' => $conversion->ID,
+                  'image_id' => $conversion->ID,
                   'hash' => $conversion->Hash,
-                  'link' => $conversion->getURL(true),
+                  'url' => $conversion->getURL(true),
                   'name' => $conversion->getFilname(),
-                  'size' => $conversion->getFilesize(),
-                  'mime_type' => $conversion->getMimeType(),
-                  'hash' => $conversion->Hash,
-                  'options' => ['formats' => 'webp,avif'],
+                  // 'size' => $conversion->getFilesize(),
+                  // 'mime_type' => $conversion->getMimeType(),
+                  'options' => ['formats' => ['webp','avif']],
                 ];
 
                 $count++;
@@ -98,95 +98,101 @@ class OSSendConversionsTask extends BuildTask
 
         if (!empty($links))
         {
-            $client = new Client([
-                'verify' => false, // ! ONLY FOR DEV
-            ]);
+            $octo = OctoSqueeze::client(ss_env('OCTOSQUEEZE_API_KEY'));
+              // ! ONLY FOR DEV
+            $octo->setEndpointUri(ss_env('OCTOSQUEEZE_ENDPOINT'));
+            $octo->setHttpClientConfig(['verify' => false]);
+            $octo->setOptions(['hash_check' => true]);
 
-            $uri = ss_env('OCTO_IMAGE_ENDPOINT') . '/api/compress-all';
+            $response = $octo->squeezeUrl($links);
+            // dd($response);
 
-            $response = $client->request('POST', $uri, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . ss_env('OCTO_IMAGE_TOKEN'),
-                    'Accept' => 'application/json',
-                ],
-                'form_params' => [
-                    'links' => json_encode($links),
-                ]
-            ]);
-
-            if ($response->getStatusCode() === 200)
+            if ($response && $response['state'])
             {
-                $result = json_decode($response->getBody()->getContents(), true);
-
-                if ($result['state'])
+                foreach ($sentConversions as $key => $conversion)
                 {
-                    foreach ($sentConversions as $conversion)
-                    {
-                        $conversion->Stage = 1;
-                        $conversion->write();
-                    }
+                    $conversion->Stage = 1;
+                    $conversion->write();
 
-                    // same as OSFetch task
-                    $fs = new Filesystem();
+                    $sentConversions[$key] = $conversion;
+                }
 
-                    if (isset($result['images']))
+                // same as OSFetch task
+                $fs = new Filesystem();
+
+                if (isset($response['items']))
+                {
+                    foreach($response['items'] as $item)
                     {
-                        foreach($result['images'] as $item)
+                        $conversion = isset($sentConversions[$item['image_id']]) ? $sentConversions[$item['image_id']] : null;
+                        // $conversion = ImageConversion::get()->filter(['ID' => $item['image_id'], 'Stage' => 1])->first();
+
+                        if ($conversion)
                         {
-                            $conversion = ImageConversion::get()->filter(['ID' => $item['image_id'], 'Stage' => 1])->first();
-
-                            if ($conversion)
+                            if ($item['compressed'])
                             {
-                                $expl = explode('.', $conversion->getURL());
-                                $ext = last($expl);
-                                $path = current($expl);
-
-                                foreach ($item['compressions'] as $compression)
+                                if (isset($item['compressions']) && is_array($item['compressions']) && count($item['compressions']))
                                 {
-                                    if (!$conversion->Compressions()->filter(['Format' => $compression['format'], 'Size' => $compression['size']])->exists())
+                                    // checking compressed compressions, and add them if not exists
+
+                                    // SAME CODE AS in OSFetch
+
+                                    $expl = explode('.', $conversion->getURL());
+                                    $ext = last($expl);
+                                    $path = current($expl);
+
+                                    foreach ($item['compressions'] as $compression)
                                     {
-                                        // ! only for dev TLS verification
-                                        $contextOptions = [
-                                          'ssl' => [
-                                            'verify_peer' => false,
-                                            'verify_peer_name' => false,
-                                          ]
-                                        ];
-                                        $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
-                                        $file = $path . '.' . $compression['format'];
-
-                                        if ($file[0] == '/')
+                                        // only if this compression does not exists - add it
+                                        if (!$conversion->Compressions()->filter('OctoID', $compression['id'])->exists())
                                         {
-                                            $file = substr($file, 1);
+                                            // ! only for dev TLS verification
+                                            $contextOptions = [
+                                              'ssl' => [
+                                                'verify_peer' => false,
+                                                'verify_peer_name' => false,
+                                              ]
+                                            ];
+                                            $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+                                            $file = $path . '.' . $compression['format'];
+
+                                            if ($file[0] == '/')
+                                            {
+                                                $file = substr($file, 1);
+                                            }
+
+                                            $fs->dumpFile($file, $image);
+
+                                            $record = ImageCompression::create();
+                                            $record->OctoID = $compression['id'];
+                                            $record->Format = $compression['format'];
+                                            $record->Size = $compression['size'];
+                                            $record->write();
+
+                                            $conversion->Compressions()->add($record);
+
+                                            $count++;
                                         }
-
-                                        $fs->dumpFile($file, $image);
-
-                                        $record = ImageCompression::create();
-                                        $record->Format = $compression['format'];
-                                        $record->Size = $compression['size'];
-                                        $record->write();
-
-                                        $conversion->Compressions()->add($record);
-
-                                        $count++;
                                     }
-                                }
 
-                                $conversion->Stage = 2;
+                                    $conversion->Stage = 2;
+                                    $conversion->write();
+                                }
+                            }
+                            else
+                            {
+                                $conversion->OctoID = $item['id'];
                                 $conversion->write();
                             }
-
-                            // $path = BASE_PATH . '/public' . $conversion->getURL(); // ASSETS_PATH
-
-                            // dump($conversion->getURL());
-
                         }
+
+
+
+                        // $path = BASE_PATH . '/public' . $conversion->getURL(); // ASSETS_PATH
+
+                        // dump($conversion->getURL());
+
                     }
-                }
-                else
-                {
-                    // error $result['error']
                 }
             }
         }

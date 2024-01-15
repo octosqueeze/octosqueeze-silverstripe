@@ -28,6 +28,7 @@ class ImageConversion extends DataObject
         'FileFilename' => 'Varchar',
         'Variant' => 'Varchar',
         'Hash' => 'Varchar',
+        'OctoID' => 'Varchar(36)',
         'Stage' => 'Int', // 0 - null, 1 - in progress (sent to compress), 2 - compressed (all requested compressions are saved)
     ];
 
@@ -341,7 +342,7 @@ class ImageConversion extends DataObject
                 //             'verify' => false, // ! ONLY FOR DEV
                 //         ]);
 
-                //         $uri = ss_env('OCTO_IMAGE_ENDPOINT') . '/api/compress';
+                //         $uri = ss_env('OCTOSQUEEZE_ENDPOINT') . '/api/compress';
 
                 //         $this->Stage = 1;
 

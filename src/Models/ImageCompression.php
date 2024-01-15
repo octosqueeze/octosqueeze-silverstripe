@@ -18,6 +18,7 @@ class ImageCompression extends DataObject
     private static $db = [
         'Format' => 'Varchar(16)',
         'Size' => 'Int',
+        'OctoID' => 'Varchar(36)',
     ];
 
     private static $has_one = [
@@ -127,7 +128,7 @@ class ImageCompression extends DataObject
     //         'formats' => 'webp,avif',
     //     ];
 
-    //     $uri = ss_env('OCTO_IMAGE_ENDPOINT') . '/api/compress';
+    //     $uri = ss_env('OCTOSQUEEZE_ENDPOINT') . '/api/compress';
 
     //     $response = $client->request('POST', $uri, [
     //         'form_params' => [

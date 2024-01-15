@@ -16,7 +16,7 @@ use SilverStripe\Forms\GridField\GridFieldImportButton;
 class OctoSqueezeAdmin extends ModelAdmin
 {
     private static $url_segment = 'octo';
-    private static $menu_title = 'OctoSqueeze Image';
+    private static $menu_title = 'OctoSqueeze';
     private static $menu_icon_class = 'font-icon-circle-star';
     // private static $menu_priority = -0.5;
 
