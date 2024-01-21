@@ -24,8 +24,8 @@ class EraseAllAssetsTask extends BuildTask
 
         foreach (File::get() as $file)
         {
-            // skip initially created 'Uploads' folder
-            if ($file->ID == 1 && $file->Name == 'Uploads')
+            // skip all folders
+            if ($file->ParentID === 0 && $file->FileHash == NULL && $file->FileFilename == NULL)
             {
                 continue;
             }
