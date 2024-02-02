@@ -34,8 +34,10 @@ class EraseAllTask extends BuildTask
             {
                 foreach ($conversion->Compressions() as $compression)
                 {
-                    $fsPublic->delete($compression->getFileID());
-                    $removedCompressions++;
+                    if ($compression && $compression->getFileID()) {
+                      $fsPublic->delete($compression->getFileID());
+                      $removedCompressions++;
+                    }
                 }
 
                 $conversion->delete();
