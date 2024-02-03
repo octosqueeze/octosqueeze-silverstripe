@@ -87,8 +87,8 @@ class OctosystemAssetStore extends FlysystemAssetStore
         {
             $clientSet = [];
 
-            if (Environment::hasEnv('OCTOSQUEEZE_DEV')) {
-                $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV');
+            if (Environment::hasEnv('OCTOSQUEEZE_DEV_ENV')) {
+                $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV_ENV');
 
                 if ($oc_dev_env) {
                   $clientSet = [

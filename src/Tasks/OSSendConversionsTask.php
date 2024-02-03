@@ -57,8 +57,8 @@ class OSSendConversionsTask extends BuildTask
 
         $config = Octo::config();
 
-        if (Environment::hasEnv('OCTOSQUEEZE_DEV')) {
-            $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV');
+        if (Environment::hasEnv('OCTOSQUEEZE_DEV_ENV')) {
+            $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV_ENV');
         } else {
             $oc_dev_env = false;
         }
