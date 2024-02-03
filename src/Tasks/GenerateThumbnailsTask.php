@@ -13,7 +13,7 @@ class GenerateThumbnailsTask extends BuildTask
 
     protected $title = '';
 
-    protected $description = 'Generate basic CMS tumbnails after Erasing all. Only those that do not exist';
+    protected $description = 'Generate basic CMS tumbnails (useful after Erasing tasks). Only those that do not exist';
 
     public function run($request)
     {
