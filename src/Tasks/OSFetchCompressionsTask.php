@@ -42,7 +42,10 @@ class OSFetchCompressionsTask extends BuildTask
           $octo->setHttpClientConfig(['verify' => false]);
         }
 
-        $octo->setOptions(['hash_check' => true]);
+        $octo->setOptions([
+          'hash_check' => true,
+          'type' => $config->get('oc_compression_type'),
+        ]);
 
         $conversions = ImageConversion::get()->filter(['Stage' => 1])->limit(20); // max urls per one request (according to OctoSqueeze API)
         $conversionsArray = array_keys($conversions->map('OctoID')->toArray());

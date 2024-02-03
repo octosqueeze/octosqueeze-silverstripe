@@ -124,7 +124,10 @@ class OSSendConversionsTask extends BuildTask
               $octo->setHttpClientConfig(['verify' => false]);
             }
 
-            $octo->setOptions(['hash_check' => true]);
+            $octo->setOptions([
+              'hash_check' => true,
+              'type' => $config->get('oc_compression_type'),
+            ]);
 
             $response = $octo->squeezeUrl($links);
             // dd($response);
