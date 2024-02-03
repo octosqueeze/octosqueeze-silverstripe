@@ -5,6 +5,8 @@ namespace OctoSqueeze\Silverstripe\Tasks;
 use GuzzleHttp\Client;
 use SilverStripe\Assets\Image;
 use SilverStripe\Dev\BuildTask;
+use OctoSqueeze\Silverstripe\Octo;
+use SilverStripe\Core\Environment;
 use OctoSqueeze\Client\OctoSqueeze;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Assets\Storage\AssetStore;
@@ -53,6 +55,14 @@ class OSSendConversionsTask extends BuildTask
 
         $sentConversions = [];
 
+        $config = Octo::config();
+
+        if (Environment::hasEnv('OCTOSQUEEZE_DEV')) {
+            $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV');
+        } else {
+            $oc_dev_env = false;
+        }
+
         // todo: if Hash missing, save it
 
         foreach (ImageConversion::get()->filter('Stage', 0) as $conversion)
@@ -79,7 +89,10 @@ class OSSendConversionsTask extends BuildTask
                   'name' => $conversion->getFilname(),
                   // 'size' => $conversion->getFilesize(),
                   // 'mime_type' => $conversion->getMimeType(),
-                  'options' => ['formats' => ['webp','avif']],
+                  'options' => [
+                    'formats' => $config->get('required_formats'),
+                    'type' => $config->get('oc_compression_type'),
+                  ],
                 ];
 
                 $count++;
@@ -99,9 +112,13 @@ class OSSendConversionsTask extends BuildTask
         if (!empty($links))
         {
             $octo = OctoSqueeze::client(ss_env('OCTOSQUEEZE_API_KEY'));
+
+            if ($oc_dev_env) {
               // ! ONLY FOR DEV
-            $octo->setEndpointUri(ss_env('OCTOSQUEEZE_ENDPOINT'));
-            $octo->setHttpClientConfig(['verify' => false]);
+              $octo->setEndpointUri(ss_env('OCTOSQUEEZE_ENDPOINT'));
+              $octo->setHttpClientConfig(['verify' => false]);
+            }
+
             $octo->setOptions(['hash_check' => true]);
 
             $response = $octo->squeezeUrl($links);
@@ -146,14 +163,19 @@ class OSSendConversionsTask extends BuildTask
                                         // only if this compression does not exists - add it
                                         if (!$conversion->Compressions()->filter('OctoID', $compression['id'])->exists())
                                         {
-                                            // ! only for dev TLS verification
-                                            $contextOptions = [
-                                              'ssl' => [
-                                                'verify_peer' => false,
-                                                'verify_peer_name' => false,
-                                              ]
-                                            ];
-                                            $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+                                            if ($oc_dev_env) {
+                                              // ! only for dev TLS verification
+                                              $contextOptions = [
+                                                'ssl' => [
+                                                  'verify_peer' => false,
+                                                  'verify_peer_name' => false,
+                                                ]
+                                              ];
+                                              $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+                                            } else {
+                                              $image = file_get_contents($compression['link']);
+                                            }
+
                                             $file = $path . '.' . $compression['format'];
 
                                             if ($file[0] == '/')

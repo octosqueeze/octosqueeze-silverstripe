@@ -4,6 +4,7 @@ namespace OctoSqueeze\Silverstripe\Assets\Flysystem;
 
 use GuzzleHttp\Client;
 use SilverStripe\Assets\File;
+use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Assets\Storage\AssetStore;
 use Symfony\Component\Filesystem\Filesystem;
@@ -84,9 +85,19 @@ class OctosystemAssetStore extends FlysystemAssetStore
     {
         if ($conversion->Image()->isPublished() && $conversion->Stage === 0)
         {
-            $client = new Client([
-                'verify' => false, // ! ONLY FOR DEV
-            ]);
+            $clientSet = [];
+
+            if (Environment::hasEnv('OCTOSQUEEZE_DEV')) {
+                $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV');
+
+                if ($oc_dev_env) {
+                  $clientSet = [
+                    'verify' => false, // ! ONLY FOR DEV
+                  ];
+                }
+            }
+
+            $client = new Client($clientSet);
 
             // $fs = new Filesystem();
             // $fs->appendToFile('test.txt', PHP_EOL . $conversion->Variant . ' - ' . json_encode([

@@ -2,6 +2,8 @@
 
 namespace OctoSqueeze\Silverstripe\Controllers;
 
+use OctoSqueeze\Silverstripe\Octo;
+use SilverStripe\Core\Environment;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
 use Symfony\Component\Filesystem\Filesystem;
@@ -30,6 +32,14 @@ class OctoController extends Controller
         $images = $request->postVar('images');
         $item = current(json_decode($images, true));
 
+        $config = Octo::config();
+
+        if (Environment::hasEnv('OCTOSQUEEZE_DEV')) {
+            $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV');
+        } else {
+            $oc_dev_env = false;
+        }
+
         $fs = new Filesystem();
         // $fs->dumpFile('test.txt', $item['image_id']);
 
@@ -45,14 +55,24 @@ class OctoController extends Controller
             {
                 if (!$conversion->Compressions()->filter(['Format' => $compression['format'], 'Size' => $compression['size']])->exists())
                 {
-                    // ! only for dev TLS verification
-                    $contextOptions = [
-                      'ssl' => [
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                      ]
-                    ];
-                    $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+                    if ($oc_dev_env) {
+
+                      // ! only for dev TLS verification
+                      $contextOptions = [
+                        'ssl' => [
+                          'verify_peer' => false,
+                          'verify_peer_name' => false,
+                        ]
+                      ];
+
+                      $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+
+                    } else {
+
+                      $image = file_get_contents($compression['link']);
+
+                    }
+
                     $file = $path . '.' . $compression['format'];
 
                     if ($file[0] == '/')

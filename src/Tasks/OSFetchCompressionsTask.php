@@ -4,6 +4,8 @@ namespace OctoSqueeze\Silverstripe\Tasks;
 
 use GuzzleHttp\Client;
 use SilverStripe\Dev\BuildTask;
+use OctoSqueeze\Silverstripe\Octo;
+use SilverStripe\Core\Environment;
 use OctoSqueeze\Client\OctoSqueeze;
 use Symfony\Component\Filesystem\Filesystem;
 use OctoSqueeze\Silverstripe\Models\ImageConversion;
@@ -24,9 +26,22 @@ class OSFetchCompressionsTask extends BuildTask
         $count = 0;
 
         $octo = OctoSqueeze::client(ss_env('OCTOSQUEEZE_API_KEY'));
-         // ! ONLY FOR DEV
-        $octo->setEndpointUri(ss_env('OCTOSQUEEZE_ENDPOINT'));
-        $octo->setHttpClientConfig(['verify' => false]);
+
+        $config = Octo::config();
+
+        if (Environment::hasEnv('OCTOSQUEEZE_DEV')) {
+            $oc_dev_env = Environment::getEnv('OCTOSQUEEZE_DEV');
+        } else {
+            $oc_dev_env = false;
+        }
+
+        if ($oc_dev_env) {
+
+          // ! ONLY FOR DEV
+          $octo->setEndpointUri(ss_env('OCTOSQUEEZE_ENDPOINT'));
+          $octo->setHttpClientConfig(['verify' => false]);
+        }
+
         $octo->setOptions(['hash_check' => true]);
 
         $conversions = ImageConversion::get()->filter(['Stage' => 1])->limit(20); // max urls per one request (according to OctoSqueeze API)
@@ -56,14 +71,23 @@ class OSFetchCompressionsTask extends BuildTask
                         {
                             if (!$conversion->Compressions()->filter(['OctoID' => $compression['id']])->exists())
                             {
-                                // ! only for dev TLS verification
-                                $contextOptions = [
-                                  'ssl' => [
-                                    'verify_peer' => false,
-                                    'verify_peer_name' => false,
-                                  ]
-                                ];
-                                $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+                                if ($oc_dev_env) {
+
+                                  // ! only for dev TLS verification
+                                  $contextOptions = [
+                                    'ssl' => [
+                                      'verify_peer' => false,
+                                      'verify_peer_name' => false,
+                                    ]
+                                  ];
+
+                                  $image = file_get_contents($compression['link'], false, stream_context_create($contextOptions));
+
+                                } else {
+
+                                  $image = file_get_contents($compression['link']);
+                                }
+
                                 $file = $path . '.' . $compression['format'];
 
                                 if ($file[0] == '/')
