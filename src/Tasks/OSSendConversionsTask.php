@@ -68,7 +68,7 @@ class OSSendConversionsTask extends BuildTask
         foreach (ImageConversion::get()->filter('Stage', 0) as $conversion)
         {
             // OC limit per request
-            if ($count >= 500) {
+            if ($count >= 100) {
               break;
             }
 
