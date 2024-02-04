@@ -100,9 +100,9 @@ class OSSendConversionsTask extends BuildTask
                       'type' => $config->get('oc_compression_type'),
                     ],
                   ];
-                }
 
-                $count++;
+                  $count++;
+                }
             }
 
             // dump($conversion->getFileSize(), $conversion->getMimeType(), $conversion->getURL());
