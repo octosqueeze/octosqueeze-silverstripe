@@ -87,18 +87,20 @@ class OSSendConversionsTask extends BuildTask
                     }
                 }
 
-                $links[] = [
-                  'image_id' => $conversion->ID,
-                  'hash' => $conversion->Hash,
-                  'url' => $conversion->getURL(true),
-                  'name' => $conversion->getFilname(),
-                  // 'size' => $conversion->getFilesize(),
-                  // 'mime_type' => $conversion->getMimeType(),
-                  'options' => [
-                    'formats' => $config->get('required_formats'),
-                    'type' => $config->get('oc_compression_type'),
-                  ],
-                ];
+                if ($conversion->getURL(true) && $conversion->getFilname()) {
+                  $links[] = [
+                    'image_id' => $conversion->ID,
+                    'hash' => $conversion->Hash,
+                    'url' => $conversion->getURL(true),
+                    'name' => $conversion->getFilname(),
+                    // 'size' => $conversion->getFilesize(),
+                    // 'mime_type' => $conversion->getMimeType(),
+                    'options' => [
+                      'formats' => $config->get('required_formats'),
+                      'type' => $config->get('oc_compression_type'),
+                    ],
+                  ];
+                }
 
                 $count++;
             }
