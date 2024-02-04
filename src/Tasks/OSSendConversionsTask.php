@@ -134,13 +134,14 @@ class OSSendConversionsTask extends BuildTask
 
             if ($response && $response['state'])
             {
-                foreach ($sentConversions as $key => $conversion)
-                {
-                    $conversion->Stage = 1;
-                    $conversion->write();
+                // dd($sentConversions->Count(), count($response['items']), $response['items']);
+                // foreach ($sentConversions as $key => $conversion)
+                // {
+                //     $conversion->Stage = 1;
+                //     $conversion->write();
 
-                    $sentConversions[$key] = $conversion;
-                }
+                //     $sentConversions[$key] = $conversion;
+                // }
 
                 // same as OSFetch task
                 $fs = new Filesystem();
@@ -191,7 +192,7 @@ class OSSendConversionsTask extends BuildTask
                                                 $file = substr($file, 1);
                                             }
 
-                                            $fs->dumpFile($file, $image);
+                                            $fs->dumpFile(PUBLIC_PATH . '/' . $file, $image);
 
                                             $record = ImageCompression::create();
                                             $record->OctoID = $compression['id'];
@@ -206,12 +207,14 @@ class OSSendConversionsTask extends BuildTask
                                     }
 
                                     $conversion->Stage = 2;
+                                    $conversion->OctoID = $item['id'];
                                     $conversion->write();
                                 }
                             }
                             else
                             {
                                 $conversion->OctoID = $item['id'];
+                                $conversion->Stage = 1;
                                 $conversion->write();
                             }
                         }

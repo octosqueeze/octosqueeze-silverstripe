@@ -80,7 +80,7 @@ class OctoController extends Controller
                         $file = substr($file, 1);
                     }
 
-                    $fs->dumpFile($file, $image);
+                    $fs->dumpFile(PUBLIC_PATH . '/' . $file, $image);
 
                     $record = ImageCompression::create();
                     $record->Format = $compression['format'];

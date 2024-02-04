@@ -47,7 +47,7 @@ class OSFetchCompressionsTask extends BuildTask
           'type' => $config->get('oc_compression_type'),
         ]);
 
-        $conversions = ImageConversion::get()->filter(['Stage' => 1])->limit(20); // max urls per one request (according to OctoSqueeze API)
+        $conversions = ImageConversion::get()->filter(['Stage' => 1])->limit(500); // max urls per one request (according to OctoSqueeze API)
         $conversionsArray = array_keys($conversions->map('OctoID')->toArray());
 
         if (count($conversionsArray))
@@ -98,7 +98,7 @@ class OSFetchCompressionsTask extends BuildTask
                                     $file = substr($file, 1);
                                 }
 
-                                $fs->dumpFile($file, $image);
+                                $fs->dumpFile(PUBLIC_PATH . '/' . $file, $image);
 
                                 $record = ImageCompression::create();
                                 $record->OctoID = $compression['id'];
