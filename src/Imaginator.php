@@ -11,49 +11,52 @@ class Imaginator
      */
     public static function browserCheck($format)
     {
-        $agent = $_SERVER['HTTP_USER_AGENT'];
-        $browserDetecter = new BrowserDetection();
-        $userAgen = $browserDetecter->getAll($agent);
-
-        // https://caniuse.com/avif
-        // https://caniuse.com/webp
-
-        if ($userAgen)
+      	if (isset($_SERVER['HTTP_USER_AGENT']))
         {
-            $browsers = [
-                'Chrome' => [
-                    'avif' => 85,
-                    'webp' => 32,
-                ],
-                'Edge' => [
-                    'avif' => false,
-                    'webp' => 18,
-                ],
-                'Safari' => [
-                    'avif' => 16.4,
-                    'webp' => 16,
-                ],
-                'Firefox' => [
-                    'avif' => 93,
-                    'webp' => 65,
-                ],
-                'Opera' => [
-                    'avif' => 71,
-                    'webp' => 19,
-                ],
-                'IE' => [
-                    'avif' => false,
-                    'webp' => false,
-                ],
-            ];
+            $agent = $_SERVER['HTTP_USER_AGENT'];
+            $browserDetecter = new BrowserDetection();
+            $userAgen = $browserDetecter->getAll($agent);
 
-            if (isset($browsers[$userAgen['browser_name']]))
+            // https://caniuse.com/avif
+            // https://caniuse.com/webp
+
+            if ($userAgen)
             {
-                $brw = $browsers[$userAgen['browser_name']];
+                $browsers = [
+                    'Chrome' => [
+                        'avif' => 85,
+                        'webp' => 32,
+                    ],
+                    'Edge' => [
+                        'avif' => false,
+                        'webp' => 18,
+                    ],
+                    'Safari' => [
+                        'avif' => 16.4,
+                        'webp' => 16,
+                    ],
+                    'Firefox' => [
+                        'avif' => 93,
+                        'webp' => 65,
+                    ],
+                    'Opera' => [
+                        'avif' => 71,
+                        'webp' => 19,
+                    ],
+                    'IE' => [
+                        'avif' => false,
+                        'webp' => false,
+                    ],
+                ];
 
-                if (isset($brw[$format]) && $brw[$format] !== false)
+                if (isset($browsers[$userAgen['browser_name']]))
                 {
-                    return $userAgen['browser_version'] >= $brw[$format];
+                    $brw = $browsers[$userAgen['browser_name']];
+
+                    if (isset($brw[$format]) && $brw[$format] !== false)
+                    {
+                        return $userAgen['browser_version'] >= $brw[$format];
+                    }
                 }
             }
         }
@@ -63,17 +66,21 @@ class Imaginator
 
     public static function imageSupport()
     {
-        $agent = $_SERVER['HTTP_USER_AGENT'];
         $support = [];
 
-        if (strpos($agent, 'image/avif') !== false || self::browserCheck('avif'))
+        if (isset($_SERVER['HTTP_USER_AGENT']))
         {
-            $support[] = 'avif';
-        }
+            $agent = $_SERVER['HTTP_USER_AGENT'];
 
-        if (strpos($agent, 'image/webp') !== false || self::browserCheck('webp'))
-        {
-            $support[] = 'webp';
+            if (strpos($agent, 'image/avif') !== false || self::browserCheck('avif'))
+            {
+                $support[] = 'avif';
+            }
+
+            if (strpos($agent, 'image/webp') !== false || self::browserCheck('webp'))
+            {
+                $support[] = 'webp';
+            }
         }
 
         return $support;
