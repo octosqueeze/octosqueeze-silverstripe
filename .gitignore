@@ -1,7 +1,26 @@
-node_modules/
-/vendor/
+# Dependencies
+/vendor
+/node_modules
+
+# OS
 .DS_Store
+**/.DS_Store
+Thumbs.db
+
+# IDEs
+/.idea
+/.vscode
+/.fleet
+/.zed
+.phpactor.json
+
+# Composer
 composer.lock
+
+# Build artifacts
 *.js.map
 *.css.map
+
+# Logs
+*.log
 yarn-error.log
