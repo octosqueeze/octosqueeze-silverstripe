@@ -14,13 +14,14 @@ class Imaginator
       	if (isset($_SERVER['HTTP_USER_AGENT']))
         {
             $agent = $_SERVER['HTTP_USER_AGENT'];
-            $browserDetecter = new BrowserDetection();
-            $userAgen = $browserDetecter->getAll($agent);
+            $browserDetector = new BrowserDetection();
+            $userAgent = $browserDetector->getAll($agent);
 
+            // Browser support versions from caniuse.com
             // https://caniuse.com/avif
             // https://caniuse.com/webp
 
-            if ($userAgen)
+            if ($userAgent)
             {
                 $browsers = [
                     'Chrome' => [
@@ -28,7 +29,7 @@ class Imaginator
                         'webp' => 32,
                     ],
                     'Edge' => [
-                        'avif' => false,
+                        'avif' => 121,
                         'webp' => 18,
                     ],
                     'Safari' => [
@@ -49,13 +50,13 @@ class Imaginator
                     ],
                 ];
 
-                if (isset($browsers[$userAgen['browser_name']]))
+                if (isset($browsers[$userAgent['browser_name']]))
                 {
-                    $brw = $browsers[$userAgen['browser_name']];
+                    $browser = $browsers[$userAgent['browser_name']];
 
-                    if (isset($brw[$format]) && $brw[$format] !== false)
+                    if (isset($browser[$format]) && $browser[$format] !== false)
                     {
-                        return $userAgen['browser_version'] >= $brw[$format];
+                        return $userAgent['browser_version'] >= $browser[$format];
                     }
                 }
             }

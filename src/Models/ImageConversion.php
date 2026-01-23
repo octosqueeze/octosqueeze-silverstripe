@@ -219,7 +219,7 @@ class ImageConversion extends DataObject
         }
         else
         {
-            return $this->Image()->getWidth();
+            return $this->Image()->getHeight();
         }
     }
 
