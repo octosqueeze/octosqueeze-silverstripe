@@ -148,7 +148,7 @@ class OctoController extends Controller
         if ($conversion && $conversion->getURL())
         {
             $expl = explode('.', $conversion->getURL());
-            $ext = last($expl);
+            $ext = end($expl);
             $path = current($expl);
 
             if (empty($item['compressions']) || !is_array($item['compressions'])) {
@@ -174,8 +174,12 @@ class OctoController extends Controller
 
                 if (!$conversion->Compressions()->filter(['Format' => $compression['format'], 'Size' => $compression['size']])->exists())
                 {
-                    // Fetch image with SSL verification enabled
-                    $image = file_get_contents($compression['link']);
+                    // Fetch image with SSL verification enabled and timeout
+                    $streamContext = stream_context_create([
+                        'http' => ['timeout' => 30],
+                        'ssl' => ['verify_peer' => true, 'verify_peer_name' => true],
+                    ]);
+                    $image = file_get_contents($compression['link'], false, $streamContext);
 
                     if ($image === false) {
                         continue; // Failed to download, skip

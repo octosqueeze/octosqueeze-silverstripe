@@ -32,7 +32,7 @@ class DBFileExtension extends Extension
         {
             $fullpath = BASE_PATH . '/' . PUBLIC_DIR . $link;
             $ex = explode('/', $fullpath);
-            $ex2 = explode('.', last($ex));
+            $ex2 = explode('.', end($ex));
             $ex3 = explode($ex2[0], $fullpath);
             $ex4 = explode($ex2[0], $link);
 
@@ -55,7 +55,7 @@ class DBFileExtension extends Extension
         {
             $fullpath = BASE_PATH . '/' . PUBLIC_DIR . $link;
             $ex = explode('/', $fullpath);
-            $ex2 = explode('.', last($ex));
+            $ex2 = explode('.', end($ex));
             $ex3 = explode($ex2[0], $fullpath);
             $ex4 = explode($ex2[0], $link);
 
@@ -100,11 +100,6 @@ class DBFileExtension extends Extension
                 }
             }
         }
-
-        // if (Environment::getEnv('APP_URL_CDN'))
-        // {
-        //     $link = Environment::getEnv('APP_URL_CDN') . $link;
-        // }
     }
 
     private function imaginariumURL($link)
@@ -117,11 +112,11 @@ class DBFileExtension extends Extension
             {
                 $fullpath = BASE_PATH . '/' . PUBLIC_DIR . $link;
                 $ex = explode('/', $fullpath);
-                $ex2 = explode('.', last($ex));
+                $ex2 = explode('.', end($ex));
                 $ex3 = explode($ex2[0], $fullpath);
                 $ex4 = explode($ex2[0], $link);
 
-                if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'image/avif') >= 0)
+                if (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'image/avif'))
                 {
                     if (!$this->owner->escapeFormattingAvif && in_array('avif', $imageSupport))
                     {
@@ -133,7 +128,7 @@ class DBFileExtension extends Extension
                     }
                 }
 
-                if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') >= 0)
+                if (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'image/webp'))
                 {
                     if (!$this->owner->escapeFormattingWebp && !isset($newSrc) && in_array('webp', $imageSupport))
                     {

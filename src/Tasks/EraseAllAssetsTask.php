@@ -20,6 +20,12 @@ class EraseAllAssetsTask extends BuildTask
 
     public function run($request)
     {
+        if (!$request->getVar('confirm')) {
+            print_r('<p><strong>WARNING:</strong> This will permanently delete ALL asset files. This cannot be undone.</p>');
+            print_r('<p>To proceed, re-run with <code>?confirm=1</code></p>');
+            return;
+        }
+
         $removedFiles = 0;
 
         foreach (File::get() as $file)

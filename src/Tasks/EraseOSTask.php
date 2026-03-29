@@ -19,6 +19,12 @@ class EraseOSTask extends BuildTask
 
     public function run($request)
     {
+        if (!$request->getVar('confirm')) {
+            print_r('<p><strong>WARNING:</strong> This will delete all compression files and wipe Conversions/Compressions tables.</p>');
+            print_r('<p>To proceed, re-run with <code>?confirm=1</code></p>');
+            return;
+        }
+
         $store = Injector::inst()->get(AssetStore::class);
         $fsPublic = $store->getPublicFilesystem();
 

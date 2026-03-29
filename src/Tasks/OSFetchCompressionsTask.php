@@ -2,6 +2,7 @@
 
 namespace OctoSqueeze\Silverstripe\Tasks;
 
+use SilverStripe\ORM\DB;
 use GuzzleHttp\Client;
 use SilverStripe\Dev\BuildTask;
 use OctoSqueeze\Silverstripe\Octo;
@@ -25,7 +26,7 @@ class OSFetchCompressionsTask extends BuildTask
     {
         $count = 0;
 
-        $octo = OctoSqueeze::client(ss_env('OCTOSQUEEZE_API_KEY'));
+        $octo = OctoSqueeze::client(Environment::getEnv('OCTOSQUEEZE_API_KEY'));
 
         $config = Octo::config();
 
@@ -38,7 +39,7 @@ class OSFetchCompressionsTask extends BuildTask
         if ($oc_dev_env) {
 
           // ! ONLY FOR DEV
-          $octo->setEndpointUri(ss_env('OCTOSQUEEZE_ENDPOINT'));
+          $octo->setEndpointUri(Environment::getEnv('OCTOSQUEEZE_ENDPOINT'));
           $octo->setHttpClientConfig(['verify' => false]);
         }
 
@@ -77,15 +78,16 @@ class OSFetchCompressionsTask extends BuildTask
                 if (!$conversion->Compressions()->filter(['OctoID' => $conversion->OctoID])->exists())
                 {
                     if ($oc_dev_env) {
-                        $contextOptions = [
+                        $contextOptions = stream_context_create([
+                            'http' => ['timeout' => 30],
                             'ssl' => [
                                 'verify_peer' => false,
                                 'verify_peer_name' => false,
-                            ]
-                        ];
-                        $image = file_get_contents($downloadUrl, false, stream_context_create($contextOptions));
+                            ],
+                        ]);
+                        $image = file_get_contents($downloadUrl, false, $contextOptions);
                     } else {
-                        $image = $octo->download($downloadUrl);
+                        $image = $octo->downloadRaw($downloadUrl);
                     }
 
                     if ($image) {
@@ -111,8 +113,15 @@ class OSFetchCompressionsTask extends BuildTask
                     }
                 }
 
-                $conversion->Stage = 2;
-                $conversion->write();
+                DB::get_conn()->transactionStart();
+                try {
+                    $conversion->Stage = 2;
+                    $conversion->write();
+                    DB::get_conn()->transactionEnd();
+                } catch (\Exception $e) {
+                    DB::get_conn()->transactionRollback();
+                    throw $e;
+                }
             }
         }
 

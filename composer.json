@@ -23,6 +23,11 @@
             "OctoSqueeze\\Silverstripe\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "OctoSqueeze\\Silverstripe\\Tests\\": "tests/"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }

@@ -145,6 +145,11 @@ class Octo
     public static function getRequiredFormatsArray(): array
     {
         $formats = static::config()->get('required_formats');
-        return array_map('trim', explode(',', $formats));
+
+        if (is_array($formats)) {
+            return array_map('trim', $formats);
+        }
+
+        return array_map('trim', explode(',', (string) $formats));
     }
 }

@@ -18,7 +18,6 @@ class OctoSqueezeAdmin extends ModelAdmin
     private static $url_segment = 'octo';
     private static $menu_title = 'OctoSqueeze';
     private static $menu_icon_class = 'font-icon-circle-star';
-    // private static $menu_priority = -0.5;
 
     private static $managed_models = [
        'compressions' => [
@@ -30,10 +29,6 @@ class OctoSqueezeAdmin extends ModelAdmin
             'title' => 'Conversions',
         ],
     ];
-
-    // public $showImportForm = true;
-    // public $showSearchForm = true;
-    // private static $page_length = 30;
 
     public function getList()
     {
@@ -76,11 +71,4 @@ class OctoSqueezeAdmin extends ModelAdmin
         return $form;
     }
 
-    // public function getExportFields()
-    // {
-    //     return [
-    //         // 'Name' => 'Name',
-    //         // 'Category.Title' => 'Category'
-    //     ];
-    // }
 }

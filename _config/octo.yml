@@ -10,22 +10,22 @@ OctoSqueeze\Silverstripe\Octo:
     - webp
   oc_compression_type: size # 'size' best size | 'quality' best quality
 
-  # not yet implemented
-  compress_original_variant: true # compress and replace with an optimized image the original variant image. (eg: image__FitMaxWzYwLDYwXQ.jpg could be replaced with a compressed .jpg version)
-  compress_original: true # compress original file. Please, note that the original uploaded file will never be replaced with an optimized image (like `compress_original_variant` for variant original files). This option covers only additional file compressions. (eg: .avif, .webp)
-  variant_ignore_rules: # variants that should be ignored and never send for compression
-    folder:
-      - "Uploads/*"
-    format:
-      - png
-    size:
-      - more:100
-    width_height:
-      - 100,100
-      - 120,100
-    width:
-      - less:150
-      - 160
-    height:
-      - 130
-      - less:100
+  # --- Planned features (not yet implemented) ---
+  # compress_original_variant: true
+  # compress_original: true
+  # variant_ignore_rules:
+  #   folder:
+  #     - "Uploads/*"
+  #   format:
+  #     - png
+  #   size:
+  #     - more:100
+  #   width_height:
+  #     - 100,100
+  #     - 120,100
+  #   width:
+  #     - less:150
+  #     - 160
+  #   height:
+  #     - 130
+  #     - less:100

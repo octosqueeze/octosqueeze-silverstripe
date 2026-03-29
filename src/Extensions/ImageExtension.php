@@ -2,14 +2,11 @@
 
 namespace OctoSqueeze\Silverstripe\Extensions;
 
-use GuzzleHttp\Client;
-use SilverStripe\Assets\File;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Assets\Storage\AssetStore;
 use Symfony\Component\Filesystem\Filesystem;
 use OctoSqueeze\Silverstripe\Models\ImageConversion;
-use OctoSqueeze\Silverstripe\Models\ImageCompression;
 use SilverStripe\Assets\FilenameParsing\ParsedFileID;
 
 class ImageExtension extends Extension
@@ -69,7 +66,6 @@ class ImageExtension extends Extension
                     $list[] = [
                       'id' => $parsedFileID->getFileID(),
                       'variant' => $parsedFileID->getVariant(),
-                      // 'conversionHash' => hash('sha256', $parsedFileID->getFileID()),
                       'name' => $filename,
                       'extension' => $ext,
                     ];
@@ -80,44 +76,8 @@ class ImageExtension extends Extension
         }
     }
 
-    // public function onBeforeDelete()
-    // {
-    //     $store = Injector::inst()->get(AssetStore::class);
-    //     $fsPublic = $store->getPublicFilesystem();
-
-    //     foreach ($this->Conversions() as $conversion)
-    //     {
-    //         if ($conversion->FileFilename)
-    //         {
-    //             foreach ($conversion->Compressions() as $compression)
-    //             {
-    //                 if ($compression->getFileID())
-    //                 {
-    //                     $fsPublic->delete($compression->getFileID());
-    //                 }
-
-    //                 // if ($compression->getFileID(true))
-    //                 // {
-    //                 //     $fsPublic->delete($compression->getFileID(true));
-    //                 // }
-    //             }
-    //         }
-    //     }
-
-    //     parent::onBeforeDelete();
-    // }
-
     public function onBeforeWrite()
     {
-        // $changes = $this->owner->getChangedFields(['Version', 'FileFilename']);
-        // $versionChanged = isset($changes['Version']) && $changes['Version']['before'] !== $changes['Version']['after'];
-
-        // dump($changes);
-
-        // if ($versionChanged)
-        // {
-        //     // dd($changes);
-        // }
     }
 
     // Create original conversion if not exists
@@ -236,86 +196,5 @@ class ImageExtension extends Extension
             }
         }
 
-        // Same as ImageConversionScanTask
-
-              // $links = [];
-
-              // $sentConversions = [];
-
-              // $list = $this->owner->Conversions()->filter('Stage', 0);
-
-              // if (count($list))
-              // {
-              //     foreach ($list as $conversion)
-              //     {
-              //         $sentConversions[] = $conversion;
-
-              //         $links[] = [
-              //           'id' => $conversion->ID,
-              //           'link' => $conversion->getURL(true),
-              //           'name' => $conversion->getFilname(),
-              //           'size' => $conversion->getFilesize(),
-              //           'mime_type' => $conversion->getMimeType(),
-              //           'options' => ['formats' => 'webp,avif'],
-              //         ];
-              //         // dump($conversion->getFileSize(), $conversion->getMimeType(), $conversion->getURL());
-              //         // dump($conversion->getManipulation() .' - '. $conversion->getWidth() .' - '. $conversion->getHeight());
-
-              //         // dump($conversion->getAttributes(), $conversion->getFocusX(), $conversion->getFocusY());
-
-              //         // 'type' => $fs->mimeType($path),
-              //         // 'size' => $fs->fileSize($path),
-
-              //         // dump($public->fileSize($swapParsedFileID->getFileID()), $swapParsedFileID, $swapParsedFileID->getFileID(), $adapter->getPublicUrl($swapParsedFileID->getFileID()));
-              //     }
-
-              //     if (!empty($links))
-              //     {
-              //         $client = new Client([
-              //             'verify' => false, // ! ONLY FOR DEV
-              //         ]);
-
-              //         // ! here to avoid awaiting on Guzzle request (mighe need to find another way to do that)
-              //         foreach ($sentConversions as $conversion)
-              //         {
-              //             $conversion->Stage = 1;
-              //             $conversion->write();
-              //         }
-
-              //         $uri = ss_env('OCTOSQUEEZE_ENDPOINT') . '/api/compress-all';
-
-              //         try {
-              //         $response = $client->request('POST', $uri, [
-              //             'timeout' => 1,
-              //             'form_params' => [
-              //                 'links' => json_encode($links),
-              //             ]
-              //         ]);
-
-              //         // if ($response->getStatusCode() === 200)
-              //         // {
-              //         //     $result = json_decode($response->getBody()->getContents(), true);
-
-              //         //     if ($result['state'])
-              //         //     {
-              //         //         foreach ($sentConversions as $conversion)
-              //         //         {
-              //         //             $conversion->Stage = 1;
-              //         //             $conversion->write();
-              //         //         }
-              //         //     }
-              //         //     else
-              //         //     {
-              //         //         // error $result['error']
-              //         //     }
-              //         // }
-
-              //           } catch (\GuzzleHttp\Exception\ConnectException $e) {
-              //             // do nothing, the timeout exception is intended
-              //         }
-
-
-              //     }
-              // }
     }
 }

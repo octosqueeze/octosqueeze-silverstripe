@@ -25,3 +25,7 @@ composer.lock
 *.log
 yarn-error.log
 .DS_Store
+
+# Testing
+/tools
+.phpunit.cache
